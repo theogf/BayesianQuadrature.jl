@@ -3,6 +3,11 @@ uuid = "609f5bd8-aef1-42b2-b90e-083e3346dba9"
 authors = ["Theo Galy-Fajou <theo.galyfajou@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+AbstractGPs = "99985d1d-32ba-4be9-9821-2ec096f28918"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+KernelFunctions = "ec8451be-7e33-11e9-00cf-bbf324bd1392"
+
 [compat]
 julia = "1.3"
 
