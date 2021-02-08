@@ -1,8 +1,8 @@
 module BayesianQuadrature
 
-using AbstractGPs
 using Distributions
 using KernelFunctions
+using LinearAlgebra
 
 export bayesquad
 

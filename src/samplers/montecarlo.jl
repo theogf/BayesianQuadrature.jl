@@ -1,4 +1,4 @@
-struct MonteCarlo{Tp} <: AbstractSampler
+struct MonteCarlo{Tp} <: AbstractSelectiveSampler
     p::Tp
 end
 
