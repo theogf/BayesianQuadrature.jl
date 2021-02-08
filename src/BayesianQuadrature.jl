@@ -1,12 +1,11 @@
 module BayesianQuadrature
 
+using AbstractMCMC
 using Distributions
 using KernelFunctions
 using LinearAlgebra
 
 export bayesquad
-
-abstract type AbstractSelectiveSampler end
 
 abstract type AbstractIntegrator end
 
