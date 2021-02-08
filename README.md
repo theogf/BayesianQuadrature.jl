@@ -14,7 +14,10 @@ We then get a posterior distribution for the integral : `p(I|{x_i}) = N(m, S)`.
 Given a Bayesian problem `p(x|y) = p(y|x) p_0(x) / p(y)` you can estimate `p(y)` by calling :
 
 ```julia
-sampler = MCSampling(500) # Will sample from the prior p_0
-integrator = BQuadature(SEKernel()) # Will approximate p(y|x) with a GP
-I = bayesquad(x->p(y|x), p_0, sampler, integrator, sampler) # Returns a Normal distribution
+prior = MvNormal(ones(2)) # As for now the prior must be a MvNormal
+integrand(x) = pdf(MvNormal(0.5 * ones(2)), x) # Integrand, the likelihood function typically
+x_init = ones(2) # The initial point to start with
+sampler = MCSampling() # Will sample from the prior p_0
+integrator = BMC(SEKernel()) # Will simply approximate p(y|x) with a GP
+I = bayesquad(integrand, prior, integrator, sampler, x_init) # Returns a Normal distribution
 ```
