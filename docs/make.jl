@@ -18,5 +18,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/theogf/BayesianQuadrature.jl",
-    branch="mean",
+    branch="main",
 )
