@@ -1,6 +1,10 @@
 using BayesianQuadrature
 using Distributions
+using KernelFunctions
+using LinearAlgebra
+using Random
 using Test
+const BQ = BayesianQuadrature
 
 @testset "BayesianQuadrature.jl" begin
     include("interface.jl")

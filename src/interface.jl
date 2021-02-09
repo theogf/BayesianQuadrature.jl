@@ -6,8 +6,8 @@ function bayesquad(
     rng::Random.AbstractRNG,
     model::AbstractBayesQuadModel,
     integrator::AbstractIntegrator,
-    sampler::AbstractSampler,
-    x_init::AbstractVector;
+    sampler::AbstractMCMC.AbstractSampler;
+    x_init = [],
     nsamples = 200,
 )
     # logπ = logjoint(model)
@@ -18,5 +18,16 @@ function bayesquad(
     # for i in 1:n_samples
     #     samples[i+1] = step(sampler, samples[i], samples, logπ)
     # end
-    return quadrature(integrator, integrand, prior, samples)
+    return quadrature(integrator, model, x), x
+end
+
+
+function bayesquad(
+    model::AbstractBayesQuadModel,
+    integrator::AbstractIntegrator,
+    sampler::AbstractMCMC.AbstractSampler;
+    x_init = [],
+    nsamples = 200,
+)
+    bayesquad(GLOBAL_RNG, model, integrator, sampler; x_init=x_init, nsamples=nsamples)
 end
