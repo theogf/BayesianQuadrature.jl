@@ -1,1 +1,1 @@
-include("montecarlo.jl")
+include("priorsampling.jl")

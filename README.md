@@ -14,10 +14,13 @@ We then get a posterior distribution for the integral : `p(I|{x_i}) = N(m, S)`.
 Given a Bayesian problem `p(x|y) = p(y|x) p_0(x) / p(y)` you can estimate `p(y)` by calling :
 
 ```julia
+using BayesianQuadrature
+using Distributions
+using KernelFunctions
 prior = MvNormal(ones(2)) # As for now the prior must be a MvNormal
 integrand(x) = pdf(MvNormal(0.5 * ones(2)), x) # Integrand, the likelihood function typically
-model = BayesModel(prior, integrand)
-integrator = BMC(SEKernel()) # Will simply approximate p(y|x) with a GP (only works with SEKernel for now
-sampler = MCSampling() # Will sample from the prior p_0
-I = bayesquad(model, integrator, sampler; nsamples=100) # Returns a Normal distribution
+model = BayesModel(prior, integrand) # Combine both to create the model
+bquad = BayesQuad(SEKernel(); l=0.1, σ=1.0) # Will simply approximate p(y|x) with a GP (only works with SEKernel for now
+sampler = PriorSampling() # Will sample from the prior p_0
+I = bquad(model, sampler; nsamples=100) # Returns a Normal distribution
 ```

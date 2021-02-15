@@ -7,12 +7,12 @@ using LinearAlgebra
 using PDMats
 using Random
 
-export bayesquad
+export BayesQuad, PriorSampling, BayesModel
 
-abstract type AbstractIntegrator end
+abstract type AbstractBayesQuad end
 abstract type AbstractBayesQuadModel{Tp, Ti} <: AbstractMCMC.AbstractModel end
 
-include(joinpath("integrators", "integrators.jl"))
+include(joinpath("bayesquads", "bayesquads.jl"))
 include(joinpath("samplers", "samplers.jl"))
 include(joinpath("kernelmeans", "kernels.jl"))
 include("interface.jl")
