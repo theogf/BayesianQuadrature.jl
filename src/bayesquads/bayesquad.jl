@@ -21,15 +21,16 @@ function BayesQuad(k::Kernel; l=1.0, σ::Real=1.0)
     return BayesQuad(k, l, σ)
 end
 
-function BayesQuad(k::TransformedKernel{TK,Tt}; l, σ=1.0) where {TK,Tt}
-    Tt <: Union{ScalarTransform,ARDTransform,LinearTransform} ||
-        error("No lengthscale could be extracted from kernel $k")
+function BayesQuad(k::TransformedKernel{TK,Tt}; l=nothing, σ=1.0) where {TK,Tt}
+    Tt <: Union{ScaleTransform,ARDTransform,LinearTransform} ||
+        error("No lengthscale could be extracted from kernel $k,\n
+        only ScaleTransform, ARDTransform and LinearTransform are allowed")
     l = param(t.transform)
 
     return BayesQuad(k.kernel; l=l, σ=σ)
 end
 
-function BayesQuad(k::ScaledKernel; l=1.0, σ)
+function BayesQuad(k::ScaledKernel; l=1.0, σ=nothing)
     σ = first(k.σ²)
     return BayesQuad(k.kernel; l=l, σ=σ)
 end
