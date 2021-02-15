@@ -13,10 +13,12 @@ end
 
 function BayesQuad(k::Kernel; l=1.0, σ::Real=1.0)
     σ > 0 || ArgumentError("σ should be positive")
-    l isa AbstractMatrix && l isa LowerTriangular || throw(
-        ArgumentError(
-            "For l an AbstractMatrix, only LowerTriangular matrices are accepted"
-        ),
+    l isa AbstractMatrix && (
+        l isa LowerTriangular || throw(
+            ArgumentError(
+                "For l an AbstractMatrix, only LowerTriangular matrices are accepted"
+            ),
+        )
     )
     return BayesQuad(k, l, σ)
 end

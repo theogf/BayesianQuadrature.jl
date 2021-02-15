@@ -22,5 +22,6 @@ integrand(x) = pdf(MvNormal(0.5 * ones(2)), x) # Integrand, the likelihood funct
 model = BayesModel(prior, integrand) # Combine both to create the model
 bquad = BayesQuad(SEKernel(); l=0.1, σ=1.0) # Will simply approximate p(y|x) with a GP (only works with SEKernel for now
 sampler = PriorSampling() # Will sample from the prior p_0
-I = bquad(model, sampler; nsamples=100) # Returns a Normal distribution
+p_I, _ = bquad(model, sampler; nsamples=100) # Returns a Normal distribution
+@show p_I # Normal{Float64}(μ=0.07063602778449946, σ=0.0028050929209120458)
 ```
