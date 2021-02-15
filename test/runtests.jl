@@ -9,16 +9,16 @@ const BQ = BayesianQuadrature
 @testset "BayesianQuadrature.jl" begin
     include("interface.jl")
 
-    @info "Testing Integrators"
-    @testset "Integrators" begin
-        include(joinpath("integrators", "integrators.jl"))
-        include(joinpath("integrators", "bmc.jl"))
+    @info "Testing BayesQuads"
+    @testset "BayesQuads" begin
+        include(joinpath("bayesquads", "bayesquads.jl"))
+        include(joinpath("bayesquads", "bayesquad.jl"))
     end
 
     @info "Testing Samplers"
     @testset "Samplers" begin
         include(joinpath("samplers", "samplers.jl"))
-        include(joinpath("samplers", "montecarlo.jl"))
+        include(joinpath("samplers", "priorsampling.jl"))
     end
 
     @info "Testing kernel means"

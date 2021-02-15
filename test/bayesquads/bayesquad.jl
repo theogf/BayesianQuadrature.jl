@@ -1,0 +1,3 @@
+@testset "bayesquad" begin
+
+end

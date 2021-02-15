@@ -1,3 +1,0 @@
-@testset "bmc" begin
-
-end
