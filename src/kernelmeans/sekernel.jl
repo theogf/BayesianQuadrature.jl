@@ -6,7 +6,7 @@ function calc_z(samples, prior, bquad::BayesQuad{<:SqExponentialKernel})
            exp.(-0.5 * PDMats.quad.(Ref(PDMat(inv(B + cov(prior)))), samples))
 end
 
-function calc_C(prior, kernel)
+function calc_C(prior, bquad::BayesQuad{<:SqExponentialKernel})
     D = length(prior)
     B = Λ(bquad)
     return scale(bquad) / sqrt(det(2 * inv(B) * cov(prior) + I))
