@@ -8,6 +8,7 @@ const BQ = BayesianQuadrature
 
 @testset "BayesianQuadrature.jl" begin
     include("interface.jl")
+    include("models.jl")
 
     @info "Testing BayesQuads"
     @testset "BayesQuads" begin
