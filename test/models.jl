@@ -1,7 +1,7 @@
 @testset "Models logfunctions" begin
     rng = Random.MersenneTwister(42)
     D = 5
-    prior = MvNormal(0.5 * ones(D))
+    p0 = MvNormal(0.5 * ones(D))
     likelihood = MvNormal(7.0 * ones(D))
     integrand = x->pdf(likelihood, x)
     m = BayesModel(prior, integrand)  
