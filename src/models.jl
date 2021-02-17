@@ -2,7 +2,7 @@
 prior(m::AbstractBayesQuadModel) = m.prior
 integrand(m::AbstractBayesQuadModel) = m.integrand
 logprior(m::AbstractBayesQuadModel) = x->logpdf(prior(m), x)
-logjoint(m::AbstractBayesQuadModel) = x->logprior(m)(x) + log(integrand(x))
+logjoint(m::AbstractBayesQuadModel) = x->logprior(m)(x) + log(integrand(m)(x))
 
 """
     BayesModel(prior, integrand)
