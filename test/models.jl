@@ -7,8 +7,8 @@
     m = BayesModel(p0, f)  
 
     x1 = randn(rng,Float64,D)
-    @test logprior(m)(x1) ≈ logpdf(prior,x1)
-    @test logjoint(m)(x1) ≈ logpdf(prior,x1) + logpdf(likelihood,x1)
-    @test BQ.prior(m) == prior
-    @test BQ.integrand(m) == integrand
+    @test logprior(m)(x1) ≈ logpdf(p0,x1)
+    @test logjoint(m)(x1) ≈ logpdf(p0,x1) + logpdf(likelihood,x1)
+    @test prior(m) == p0
+    @test integrand(m) == f
 end
