@@ -8,7 +8,7 @@ using PDMats
 using Random
 
 export BayesQuad, PriorSampling, BayesModel
-export prior, integrand, logprior, logjoint
+export prior, integrand, logintegrand, logprior, logjoint
 
 abstract type AbstractBayesQuad end
 abstract type AbstractBayesQuadModel{Tp, Ti} <: AbstractMCMC.AbstractModel end

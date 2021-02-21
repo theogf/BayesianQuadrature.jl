@@ -3,8 +3,8 @@
     D = 5
     prior = MvNormal(0.5 * ones(D))
     likelihood = MvNormal(7.0 * ones(D))
-    integrand = x->pdf(likelihood, x)
-    m = BayesModel(prior, integrand)
+    logintegrand = x->logpdf(likelihood, x)
+    m = BayesModel(prior, logintegrand)
     s = PriorSampling()
     bquad = BayesQuad(transform(SEKernel(), 0.1))
     pZ, x  = bquad(m, s; nsamples=100)
