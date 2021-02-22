@@ -11,7 +11,7 @@ logjoint(m::AbstractBayesQuadModel) = x->logprior(m)(x) + logintegrand(m)(x)
 Model inheriting from AbstractMCMC.AbstractModel.
 `prior` should be a multivariate distribution from `Distributions.jl`
 at the moment `prior` has to be a `MvNormal` but this will improved in a later version
-`logintegrand` should be the logarithm function to integrate.
+`logintegrand` should be the log of the function to integrate.
 """
 struct BayesModel{Tp,Ti} <: AbstractBayesQuadModel{Tp,Ti}
     prior::Tp
