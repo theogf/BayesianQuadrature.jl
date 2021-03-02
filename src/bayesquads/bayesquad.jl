@@ -47,5 +47,5 @@ function quadrature(
     K = kernelpdmat(kernel(bquad), samples)
     z = calc_z(samples, prior(model), bquad)
     C = calc_C(prior(model), bquad)
-    return Normal(evaluate_mean(z, K, y), evaluate_var(z, K, C))
+    return Normal(evaluate_mean(z, K, y), sqrt(evaluate_var(z, K, C)))
 end

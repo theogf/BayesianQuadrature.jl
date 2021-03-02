@@ -48,19 +48,8 @@ function quadrature(
     x_c = sample_candidates(bquad, samples)
     logf = logintegrand(model).(samples)
     f = exp.(logf)
-    # f_c = integrand(model).(x_c)
-    # logf_c = logintegrand(model).(x_c)
-    joint_samples = vcat(samples, x_c)
 
-    fullK = kernelpdmat(kernel(bquad), joint_samples)
-    K = fullK[1:nsamples, 1:nsamples]
-    Kcx = fullK[(nsamples+1):end, 1:nsamples]
-    Kc = fullK[(nsamples+1):end, (nsamples+1):end]
-    κ = Kcx / Kc
-
-    f_c_0 = κ * f # 
     f_c_0 = mean.(predict(bquad, samples, f, x_c))
-    logf_c_0 = κ * logf 
     logf_c_0 = mean.(predict(bquad, samples, logf, x_c))
     Δ_c = exp.(logf_c_0) - f_c_0
     
@@ -70,14 +59,12 @@ function quadrature(
     
     z_c = calc_z(x_c, prior(model), bquad)
     K_c = kernelpdmat(kernel(bquad), x_c)
-    @show Δ_c
-    @show m_evidence = evaluate_mean(z, K, f)
-    # @show m_correction = evaluate_mean(z_c, K_c, vcat(zeros(length(samples)), Δ_c))
-    @show m_correction = evaluate_mean(z_c, K_c, Δ_c)
+    m_evidence = evaluate_mean(z, K, f)
+    m_correction = evaluate_mean(z_c, K_c, Δ_c)
 
-    @show var_evidence = evaluate_var(z, K, C)
-    @show var_correction = evaluate_var(z_c, K_c, C)
-    return Normal(m_evidence + m_correction, var_evidence + var_correction)
+    var_evidence = evaluate_var(z, K, C)
+    var_correction = evaluate_var(z_c, K_c, C)
+    return Normal(m_evidence + m_correction, sqrt(var_evidence + var_correction))
 end
 
 function predict(bquad::LogBayesQuad, samples, f, x_c)
