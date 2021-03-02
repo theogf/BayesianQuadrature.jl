@@ -5,7 +5,7 @@ Bayesian Quadrature object.
 You can pass any kernel and the lengthscale and variance will be extracted.
 `l` can be a `Real`, a `AbstractVector` or a `LowerTriangular`.
 """
-struct BayesQuad{TK,Tl,Tσ} <: AbstractBayesQuad
+struct BayesQuad{TK,Tl,Tσ} <: AbstractBayesQuad{TK, Tl}
     kernel::TK
     l::Tl
     σ::Tσ
@@ -37,14 +37,6 @@ function BayesQuad(k::ScaledKernel; l=1.0, σ=nothing)
     return BayesQuad(k.kernel; l=l, σ=σ)
 end
 
-function kernel(b::BayesQuad)
-    return b.σ * transform(b.kernel, inv.(b.l))
-end
-
-function kernel(b::BayesQuad{<:Kernel,<:LowerTriangular})
-    return b.σ * transform(b.kernel, LinearTransform(inv(b.l)))
-end
-
 function quadrature(
     bquad::BayesQuad{<:SqExponentialKernel},
     model::AbstractBayesQuadModel{<:MvNormal},
@@ -56,18 +48,4 @@ function quadrature(
     z = calc_z(samples, prior(model), bquad)
     C = calc_C(prior(model), bquad)
     return Normal(evaluate_mean(z, K, y), evaluate_var(z, K, C))
-end
-
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:Real}) = abs2(bquad.l) * I
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:AbstractVector}) = Diagonal(abs2.(bquad.l))
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:LowerTriangular}) = bquad.l * bquad.l'
-
-scale(bquad::BayesQuad) = bquad.σ
-
-function evaluate_mean(z, K, y)
-    return dot(z, K \ y)
-end
-
-function evaluate_var(z, K, C)
-    return C - PDMats.invquad(K, z)
 end
