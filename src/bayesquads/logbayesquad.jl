@@ -48,8 +48,11 @@ function quadrature(
     isempty(samples) && error("The collection of samples is empty")
     nsamples = length(samples)
     logf = logintegrand(model).(samples) # Evaluate integrand on samples
-    max_logf = maximum(logf) # Find maximum
-    logf .-= max_logf # Normalize log integrand
+    normalize = false
+    if normalize
+        max_logf = maximum(logf) # Find maximum
+        logf .-= max_logf # Normalize log integrand
+    end
     f = exp.(logf) # Compute integrand
 
     x_c = sample_candidates(bquad, samples) # Sample candidates around the samples
@@ -72,13 +75,17 @@ function quadrature(
 
     var_evidence = evaluate_var(z, K, C)
     var_correction = evaluate_var(z_c, K_c, C)
-    return Normal(
-        exp(log(m_evidence + m_correction) + max_logf),
-        sqrt(exp(log(var_evidence + var_correction) + 2 * max_logf))
-    )
+    if normalize
+        m = exp(log(m_evidence + m_correction) + max_logf)
+        v = exp(log(var_evidence + var_correction) + 2 * max_logf)
+    else
+        m = m_evidence + m_correction
+        v = var_evidence + var_correction
+    end
+    return Normal(m, sqrt(v))
 end
 
-function predict(gp::FiniteGP, f, x_c)
+function predict(gp::AbstractGPs.FiniteGP, f, x_c)
     f_post = posterior(gp, f)
     return f_c = mean(f_post(x_c)) 
 end
