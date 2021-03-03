@@ -1,9 +1,11 @@
 """
-    LogBayesQuad(k::Kernel; l=1.0, σ::Real=1.0)
-
-Bayesian Quadrature object.
-You can pass any kernel and the lengthscale and variance will be extracted.
-`l` can be a `Real`, a `AbstractVector` or a `LowerTriangular`.
+    LogBayesQuad(k::Kernel; n_candidates=100, l=1.0, σ::Real=1.0)
+Tool for running Bayesian Quadrature by assuming a GP on the log integrand instead
+of the integrand.
+`n_candidates` will be sampled around the first samples to perform a linear approximation
+of the result.
+See : 
+- **Active Learning of Model Evidence Using Bayesian Quadrature** - Osborne et al. - NIPS 2012.
 """
 struct LogBayesQuad{TK,Tl,Tσ} <: AbstractBayesQuad{TK, Tl}
     kernel::TK
@@ -45,33 +47,45 @@ function quadrature(
 )
     isempty(samples) && error("The collection of samples is empty")
     nsamples = length(samples)
-    x_c = sample_candidates(bquad, samples)
-    logf = logintegrand(model).(samples)
-    f = exp.(logf)
+    logf = logintegrand(model).(samples) # Evaluate integrand on samples
+    max_logf = maximum(logf) # Find maximum
+    logf .-= max_logf # Normalize log integrand
+    f = exp.(logf) # Compute integrand
 
-    f_c_0 = mean.(predict(bquad, samples, f, x_c))
-    logf_c_0 = mean.(predict(bquad, samples, logf, x_c))
-    Δ_c = exp.(logf_c_0) - f_c_0
+    x_c = sample_candidates(bquad, samples) # Sample candidates around the samples
+
+    gp = create_gp(bquad, samples)
+    f_c_0 = mean.(predict(gp, f, x_c)) # Predict integrand on x_c
+    logf_c_0 = mean.(predict(gp, logf, x_c)) # Predict log-integrand on x_c
+    Δ_c = exp.(logf_c_0) - f_c_0 # Compute difference of predictions
     
+    C = calc_C(prior(model), bquad)
+
     z = calc_z(samples, prior(model), bquad)
     K = kernelpdmat(kernel(bquad), samples)
-    C = calc_C(prior(model), bquad)
     
     z_c = calc_z(x_c, prior(model), bquad)
     K_c = kernelpdmat(kernel(bquad), x_c)
+
     m_evidence = evaluate_mean(z, K, f)
     m_correction = evaluate_mean(z_c, K_c, Δ_c)
 
     var_evidence = evaluate_var(z, K, C)
     var_correction = evaluate_var(z_c, K_c, C)
-    return Normal(m_evidence + m_correction, sqrt(var_evidence + var_correction))
+    return Normal(
+        exp(log(m_evidence + m_correction) + max_logf),
+        sqrt(exp(log(var_evidence + var_correction) + 2 * max_logf))
+    )
 end
 
-function predict(bquad::LogBayesQuad, samples, f, x_c)
-    gp = GP(kernel(bquad))
-    fx = gp(samples)
-    f_post = posterior(fx, f)
+function predict(gp::FiniteGP, f, x_c)
+    f_post = posterior(gp, f)
     return f_c = mean(f_post(x_c)) 
+end
+
+function create_gp(bquad::LogBayesQuad, samples)
+    gp = GP(kernel(bquad))
+    fx = gp(samples)    
 end
 
 function sample_candidates(bquad::LogBayesQuad, samples)
