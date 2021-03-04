@@ -11,17 +11,17 @@ struct BayesModel{Tp,Ti} <: AbstractBayesQuadModel{Tp,Ti}
     logintegrand::Ti
 end
 
-
-_prior(m::AbstractBayesQuadModel{<:MvNormal}) = m.prior
-_prior(m::AbstractBayesQuadModel) = MvNormal(ones(length(m.prior)))
+_prior(m::AbstractBayesQuad) = m.prior
+priord(m::AbstractBayesQuadModel{<:MvNormal}) = _prior(m)
+priord(m::AbstractBayesQuadModel) = MvNormal(ones(length(_prior(m))))
 prior(m::AbstractBayesQuadModel) = exp ∘ logprior(m)
-logprior(m::AbstractBayesQuadModel) = x->logpdf(_prior(m), x)
+logprior(m::AbstractBayesQuadModel) = x->logpdf(priord(m), x)
 
 _logintegrand(m::AbstractBayesQuadModel) = m.logintegrand
 logintegrand(m::AbstractBayesQuadModel{<:MvNormal}) = _logintegrand(m)
 function logintegrand(m::AbstractBayesQuadModel)
     return function reweightedlogintegrand(x)
-        _logintegrand(m)(x) + logpdf(m.prior, x) - logprior(m)(x)
+        _logintegrand(m)(x) + logpdf(_prior(m), x) - logprior(m)(x)
     end
 end
 integrand(m::AbstractBayesQuadModel) = exp ∘ logintegrand(m)

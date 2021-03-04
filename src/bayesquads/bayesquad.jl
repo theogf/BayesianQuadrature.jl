@@ -56,7 +56,7 @@ function quadrature(
     isempty(samples) && error("The collection of samples is empty")
     y = integrand(model).(samples)
     K = kernelpdmat(kernel(bquad), samples)
-    z = calc_z(samples, prior(model), bquad)
-    C = calc_C(prior(model), bquad)
+    z = calc_z(samples, priord(model), bquad)
+    C = calc_C(priord(model), bquad)
     return Normal(evaluate_mean(z, K, y), sqrt(evaluate_var(z, K, C)))
 end

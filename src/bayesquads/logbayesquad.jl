@@ -62,12 +62,12 @@ function quadrature(
     logf_c_0 = mean.(predict(gp, logf, x_c)) # Predict log-integrand on x_c
     Δ_c = exp.(logf_c_0) - f_c_0 # Compute difference of predictions
     
-    C = calc_C(prior(model), bquad)
+    C = calc_C(priord(model), bquad)
 
-    z = calc_z(samples, prior(model), bquad)
+    z = calc_z(samples, priord(model), bquad)
     K = kernelpdmat(kernel(bquad), samples)
     
-    z_c = calc_z(x_c, prior(model), bquad)
+    z_c = calc_z(x_c, priord(model), bquad)
     K_c = kernelpdmat(kernel(bquad), x_c)
 
     m_evidence = evaluate_mean(z, K, f)
@@ -95,6 +95,16 @@ function create_gp(bquad::LogBayesQuad, samples)
     fx = gp(samples)    
 end
 
+
+"""
+    sample_candidates(bquad::LogBayesQuad, samples)
+
+Sample new candidates around the existing `samples` within an hyper-ellipse, i.e
+in the space where |x_i|^n + |y_i|^n = 1.
+The number of candidates is given by `bquad.n_candidates`
+This is needed to estimate the correction term for using a log transformation.
+See Osborne et al. 2012 and [`LogBayesQuad`](@ref)
+"""
 function sample_candidates(bquad::LogBayesQuad, samples)
     n_c = bquad.n_candidates
     n_samples = length(samples)
