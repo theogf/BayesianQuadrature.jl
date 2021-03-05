@@ -10,6 +10,6 @@
     @test integrand(m)(x1) ≈ pdf(likelihood, x1)
     @test logprior(m)(x1) ≈ logpdf(p0,x1)
     @test logjoint(m)(x1) ≈ logpdf(p0,x1) + logpdf(likelihood,x1)
-    @test prior(m) == p0
+    @test BQ.priord(m) == p0
     @test logintegrand(m) == logf
 end

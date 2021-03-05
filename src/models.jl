@@ -11,7 +11,7 @@ struct BayesModel{Tp,Ti} <: AbstractBayesQuadModel{Tp,Ti}
     logintegrand::Ti
 end
 
-_prior(m::AbstractBayesQuad) = m.prior
+_prior(m::AbstractBayesQuadModel) = m.prior
 priord(m::AbstractBayesQuadModel{<:MvNormal}) = _prior(m)
 priord(m::AbstractBayesQuadModel) = MvNormal(ones(length(_prior(m))))
 prior(m::AbstractBayesQuadModel) = exp ∘ logprior(m)
