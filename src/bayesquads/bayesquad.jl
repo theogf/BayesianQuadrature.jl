@@ -1,11 +1,22 @@
 """
     BayesQuad(k::Kernel; l=1.0, σ::Real=1.0)
 
-Bayesian Quadrature object.
-You can pass any kernel and the lengthscale and variance will be extracted.
-`l` can be a `Real`, a `AbstractVector` or a `LowerTriangular`.
+Tool for estimating the bayesian quadrature for a given `BayesQuadModel` and a `Sampler`.
+
+`BayesQuad` estimate the probability distribution `p(I)` of I = ∫ f(x) p(x) dx
+## Argument
+- `k::Kernel` : kernel from `KernelFunctions.jl`, the kernel cannot be composite
+## Keywords argument
+- `l` : lengthscale of the kernel. It can be:
+    - `Real` : isotropic kernel
+    - `AbstractVector` : ARD kernel (one lengthscale per dimension)
+    - `LowerTriangular` : Linear transformation of the inputs
+- `σ` : variance of the kernel (`k(x,x') -> σ * k(x,x')`)
+
+Note: If `k` already has a variance and/or a transformation,
+these will be automatically extracted
 """
-struct BayesQuad{TK,Tl,Tσ} <: AbstractBayesQuad
+struct BayesQuad{TK,Tl,Tσ} <: AbstractBayesQuad{TK, Tl}
     kernel::TK
     l::Tl
     σ::Tσ
@@ -37,14 +48,6 @@ function BayesQuad(k::ScaledKernel; l=1.0, σ=nothing)
     return BayesQuad(k.kernel; l=l, σ=σ)
 end
 
-function kernel(b::BayesQuad)
-    return b.σ * transform(b.kernel, inv.(b.l))
-end
-
-function kernel(b::BayesQuad{<:Kernel,<:LowerTriangular})
-    return b.σ * transform(b.kernel, LinearTransform(inv(b.l)))
-end
-
 function quadrature(
     bquad::BayesQuad{<:SqExponentialKernel},
     model::AbstractBayesQuadModel{<:MvNormal},
@@ -53,21 +56,7 @@ function quadrature(
     isempty(samples) && error("The collection of samples is empty")
     y = integrand(model).(samples)
     K = kernelpdmat(kernel(bquad), samples)
-    z = calc_z(samples, prior(model), bquad)
-    C = calc_C(prior(model), bquad)
-    return Normal(evaluate_mean(z, K, y), evaluate_var(z, K, C))
-end
-
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:Real}) = abs2(bquad.l) * I
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:AbstractVector}) = Diagonal(abs2.(bquad.l))
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:LowerTriangular}) = bquad.l * bquad.l'
-
-scale(bquad::BayesQuad) = bquad.σ
-
-function evaluate_mean(z, K, y)
-    return dot(z, K \ y)
-end
-
-function evaluate_var(z, K, C)
-    return C - PDMats.invquad(K, z)
+    z = calc_z(samples, priord(model), bquad)
+    C = calc_C(priord(model), bquad)
+    return Normal(evaluate_mean(z, K, y), sqrt(evaluate_var(z, K, C)))
 end

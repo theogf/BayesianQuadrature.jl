@@ -1,5 +1,6 @@
 module BayesianQuadrature
 
+using AbstractGPs
 using AbstractMCMC
 using Distributions
 using KernelFunctions
@@ -7,10 +8,11 @@ using LinearAlgebra
 using PDMats
 using Random
 
-export BayesQuad, PriorSampling, BayesModel
+export BayesQuad, LogBayesQuad
+export PriorSampling, BayesModel
 export prior, integrand, logintegrand, logprior, logjoint
 
-abstract type AbstractBayesQuad end
+abstract type AbstractBayesQuad{Kernel, T} end
 abstract type AbstractBayesQuadModel{Tp, Ti} <: AbstractMCMC.AbstractModel end
 
 include(joinpath("bayesquads", "bayesquads.jl"))

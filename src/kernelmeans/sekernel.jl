@@ -1,4 +1,4 @@
-function calc_z(samples, prior, bquad::BayesQuad{<:SqExponentialKernel})
+function calc_z(samples, prior, bquad::AbstractBayesQuad{<:SqExponentialKernel})
     D = length(prior)
     z = samples .- Ref(mean(prior))
     B = Λ(bquad)
@@ -6,7 +6,7 @@ function calc_z(samples, prior, bquad::BayesQuad{<:SqExponentialKernel})
            exp.(-0.5 * PDMats.quad.(Ref(PDMat(inv(B + cov(prior)))), samples))
 end
 
-function calc_C(prior, bquad::BayesQuad{<:SqExponentialKernel})
+function calc_C(prior, bquad::AbstractBayesQuad{<:SqExponentialKernel})
     D = length(prior)
     B = Λ(bquad)
     return scale(bquad) / sqrt(det(2 * inv(B) * cov(prior) + I))
