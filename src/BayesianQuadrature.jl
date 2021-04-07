@@ -9,9 +9,13 @@ using Random
 
 export BayesQuad, PriorSampling, BayesModel
 export prior, integrand, logintegrand, logprior, logjoint
+export BQ # Short version for calling BayesianQuadrature
 
-abstract type AbstractBayesQuad end
-abstract type AbstractBayesQuadModel{Tp,Ti} <: AbstractMCMC.AbstractModel end
+const BQ = BayesianQuadrature
+
+abstract type AbstractBQ end
+abstract type AbstractBQSampler <: AbstractMCMC.AbstractSampler end
+abstract type AbstractBQModel{Tp,Ti} <: AbstractMCMC.AbstractModel end
 
 include(joinpath("bayesquads", "bayesquads.jl"))
 include(joinpath("samplers", "samplers.jl"))

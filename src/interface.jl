@@ -6,7 +6,7 @@ function (bquad::AbstractBayesQuad)(
     nsamples=200,
     callback=nothing,
 )
-    x = sample(rng, model, sampler, nsamples; callback=callback)
+    x = sample(rng, model, sampler, nsamples; callback=callback, bquad=bquad)
     return quadrature(bquad, model, x), x
 end
 
