@@ -11,7 +11,7 @@ export BayesQuad, PriorSampling, BayesModel
 export prior, integrand, logintegrand, logprior, logjoint
 
 abstract type AbstractBayesQuad end
-abstract type AbstractBayesQuadModel{Tp, Ti} <: AbstractMCMC.AbstractModel end
+abstract type AbstractBayesQuadModel{Tp,Ti} <: AbstractMCMC.AbstractModel end
 
 include(joinpath("bayesquads", "bayesquads.jl"))
 include(joinpath("samplers", "samplers.jl"))
@@ -21,4 +21,3 @@ include("models.jl")
 include("utils.jl")
 
 end
-

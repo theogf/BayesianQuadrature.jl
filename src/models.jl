@@ -1,9 +1,9 @@
 
 prior(m::AbstractBayesQuadModel) = m.prior
 logintegrand(m::AbstractBayesQuadModel) = m.logintegrand
-integrand(m::AbstractBayesQuadModel) = x->exp(logintegrand(m)(x))
-logprior(m::AbstractBayesQuadModel) = x->logpdf(prior(m), x)
-logjoint(m::AbstractBayesQuadModel) = x->logprior(m)(x) + logintegrand(m)(x)
+integrand(m::AbstractBayesQuadModel) = x -> exp(logintegrand(m)(x))
+logprior(m::AbstractBayesQuadModel) = x -> logpdf(prior(m), x)
+logjoint(m::AbstractBayesQuadModel) = x -> logprior(m)(x) + logintegrand(m)(x)
 
 """
     BayesModel(prior, logintegrand)
