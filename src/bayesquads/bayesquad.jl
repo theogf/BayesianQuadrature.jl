@@ -47,7 +47,7 @@ end
 
 function quadrature(
     bquad::BayesQuad{<:SqExponentialKernel},
-    model::AbstractBayesQuadModel{<:MvNormal},
+    model::AbstractBQModel{<:MvNormal},
     samples,
 )
     isempty(samples) && error("The collection of samples is empty")

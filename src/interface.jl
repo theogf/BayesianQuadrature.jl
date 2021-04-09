@@ -1,6 +1,6 @@
-function (bquad::AbstractBayesQuad)(
+function (bquad::AbstractBQ)(
     rng::Random.AbstractRNG,
-    model::AbstractBayesQuadModel,
+    model::AbstractBQModel,
     sampler::AbstractMCMC.AbstractSampler;
     x_init=[],
     nsamples=200,
@@ -10,8 +10,8 @@ function (bquad::AbstractBayesQuad)(
     return quadrature(bquad, model, x), x
 end
 
-function (bquad::AbstractBayesQuad)(
-    model::AbstractBayesQuadModel,
+function (bquad::AbstractBQ)(
+    model::AbstractBQModel,
     sampler::AbstractMCMC.AbstractSampler;
     x_init=[],
     nsamples=200,
