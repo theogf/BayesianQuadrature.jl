@@ -3,7 +3,7 @@
 end
 
 @testset "small sigma" begin
-    rng = Random.MersenneTwister(16) #Tested 11-16 39-42
+    rng = Random.MersenneTwister(32) #Tested 11-16 39-42
 
     p_0 = MvNormal(ones(2)) # As for now the prior must be a MvNormal
     log_f(x) = logpdf(MvNormal(0.5 * ones(2)), x) # The logarithm of the Integrand log_f, the log-likelihood function typically
