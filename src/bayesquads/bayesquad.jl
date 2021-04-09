@@ -5,7 +5,7 @@ Bayesian Quadrature object.
 You can pass any kernel and the lengthscale and variance will be extracted.
 `l` can be a `Real`, a `AbstractVector` or a `LowerTriangular`.
 """
-struct BayesQuad{TK,Tl,Tσ} <: AbstractBayesQuad
+struct BayesQuad{TK,Tl,Tσ} <: AbstractBQ
     kernel::TK
     l::Tl
     σ::Tσ
@@ -47,7 +47,7 @@ end
 
 function quadrature(
     bquad::BayesQuad{<:SqExponentialKernel},
-    model::AbstractBayesQuadModel{<:MvNormal},
+    model::AbstractBQModel{<:MvNormal},
     samples,
 )
     isempty(samples) && error("The collection of samples is empty")
