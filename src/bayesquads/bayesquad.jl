@@ -63,7 +63,7 @@ function quadrature(
             error("Obtained variance was negative")
         end
     end
-    return Normal(evaluate_mean(z, K, y), max(var,zero(var)))
+    return Normal(evaluate_mean(z, K, y), max(var, zero(var)))
 end
 
 Λ(bquad::BayesQuad{<:SqExponentialKernel,<:Real}) = abs2(bquad.l) * I
