@@ -55,7 +55,15 @@ function quadrature(
     K = kernelpdmat(kernel(bquad), samples)
     z = calc_z(samples, prior(model), bquad)
     C = calc_C(prior(model), bquad)
-    return Normal(evaluate_mean(z, K, y), evaluate_var(z, K, C))
+    var = evaluate_var(z, K, C)
+    if var < 0
+        if var > -1e-5
+            @warn "Variance was negative (numerical error) and set to 0"
+        else
+            error("Obtained variance was negative")
+        end
+    end
+    return Normal(evaluate_mean(z, K, y), max(var, zero(var)))
 end
 
 Λ(bquad::BayesQuad{<:SqExponentialKernel,<:Real}) = abs2(bquad.l) * I
