@@ -60,7 +60,7 @@ function quadrature(
         if var > -1e-5
             @warn "Variance was negative (numerical error) and set to 0"
         else
-            error("Obtained variance was negative
+            error("Obtained variance was negative")
         end
     end
     return Normal(evaluate_mean(z, K, y), max(var,zero(var)))
