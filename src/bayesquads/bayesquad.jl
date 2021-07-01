@@ -38,11 +38,11 @@ function BayesQuad(k::ScaledKernel; l=1.0, σ=nothing)
 end
 
 function kernel(b::BayesQuad)
-    return b.σ * transform(b.kernel, inv.(b.l))
+    return b.σ * (b.kernel ∘ ScaleTransform(inv.(b.l)))
 end
 
 function kernel(b::BayesQuad{<:Kernel,<:LowerTriangular})
-    return b.σ * transform(b.kernel, LinearTransform(inv(b.l)))
+    return b.σ * (b.kernel ∘ LinearTransform(inv(b.l)))
 end
 
 function quadrature(
