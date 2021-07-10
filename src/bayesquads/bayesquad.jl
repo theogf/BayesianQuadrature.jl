@@ -57,13 +57,9 @@ function quadrature(
     C = calc_C(prior(model), bquad)
     var = evaluate_var(z, K, C)
     if var < 0
-        if var > -1e-5
-            @warn "Variance was negative (numerical error) and set to 0"
-        else
-            error("Obtained variance was negative")
-        end
+            @warn "Obtained variance was negative"
     end
-    return Normal(evaluate_mean(z, K, y), max(var, zero(var)))
+    return Normal(evaluate_mean(z, K, y), var; check_args=false)
 end
 
 Λ(bquad::BayesQuad{<:SqExponentialKernel,<:Real}) = abs2(bquad.l) * I
