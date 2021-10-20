@@ -1,5 +1,10 @@
-# API
+```@meta
+CurrentModule = BayesianQuadrature
+```
 
+# API
+```@index
+```
 
 ## Models
 
