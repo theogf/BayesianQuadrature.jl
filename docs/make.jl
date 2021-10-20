@@ -13,10 +13,14 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Theory" => "theory.md",
+        "User Guide" => "userguide.md",
+        "API" => "api.md",
     ],
 )
 
 deploydocs(;
     repo="github.com/theogf/BayesianQuadrature.jl",
     devbranch="main",
+    pushpreview=true
 )
