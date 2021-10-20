@@ -6,7 +6,7 @@ logprior(m::AbstractBQModel) = x -> logpdf(prior(m), x)
 logjoint(m::AbstractBQModel) = x -> logprior(m)(x) + logintegrand(m)(x)
 
 """
-    BayesModel(prior, logintegrand) <: AbstractBayesQuadModel
+    BayesModel(prior, logintegrand) <: AbstractBQModel
 
 Model inheriting from `AbstractMCMC.AbstractModel`.
 `prior` should be a multivariate distribution from `Distributions.jl`
