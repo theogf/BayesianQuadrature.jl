@@ -3,7 +3,7 @@
 
 Sampler which will use the prior distribution from the given model to provide samples.
 """
-struct PriorSampling <: AbstractMCMC.AbstractSampler end
+struct PriorSampling <: AbstractBQSampler end
 
 function AbstractMCMC.step(rng::Random.AbstractRNG, model, ::PriorSampling; kwargs...)
     return rand(rng, priord(model)), nothing
