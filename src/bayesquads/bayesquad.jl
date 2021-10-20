@@ -16,7 +16,7 @@ Tool for estimating the bayesian quadrature for a given `BayesQuadModel` and a `
 Note: If `k` already has a variance and/or a transformation,
 these will be automatically extracted and replace the given keyword arguments
 """
-struct BayesQuad{TK,Tl,Tσ} <: AbstractBQ
+struct BayesQuad{TK,Tl,Tσ} <: AbstractBQ{TK}
     kernel::TK
     l::Tl
     σ::Tσ
@@ -38,8 +38,8 @@ function quadrature(
     isempty(samples) && error("The collection of samples is empty")
     y = integrand(model).(samples)
     K = kernelpdmat(kernel(bquad), samples)
-    z = calc_z(samples, prior(model), bquad)
-    C = calc_C(prior(model), bquad)
+    z = calc_z(samples, p_0(model), bquad)
+    C = calc_C(p_0(model), bquad)
     var = evaluate_var(z, K, C)
     if var < 0
         if var > -1e-5
@@ -50,10 +50,6 @@ function quadrature(
     end
     return Normal(evaluate_mean(z, K, y), max(var, zero(var)))
 end
-
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:Real}) = abs2(bquad.l) * I
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:AbstractVector}) = Diagonal(abs2.(bquad.l))
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:LowerTriangular}) = bquad.l * bquad.l'
 
 scale(bquad::BayesQuad) = bquad.σ
 

@@ -22,7 +22,7 @@ General class of models to perform quadrature.
 It needs to implement `quadrature(::AbstractBQ, model::AbstractBQModel, samples)`
 """
 
-abstract type AbstractBQ end
+abstract type AbstractBQ{TK} end
 """
     AbstractBQSampler
 
@@ -35,7 +35,7 @@ abstract type AbstractBQSampler <: AbstractMCMC.AbstractSampler end
     AbstractBQModel
 
 General model class.
-Should implement `prior(m)` and `logintegrand(m)`
+Should implement `p_0(m)` and `logintegrand(m)`
 """
 abstract type AbstractBQModel{Tp,Ti} <: AbstractMCMC.AbstractModel end
 

@@ -11,7 +11,7 @@ function check_kernel_parameters(l, σ)
         )
     )
     l isa Union{AbstractVector,Real} && (
-        any(>(0), l) || throw(
+        all(>=(0), l) || throw(
             ArgumentError(
                 "At least one lengthscale value is negative"
             )
@@ -21,29 +21,34 @@ function check_kernel_parameters(l, σ)
 end
 
 function get_kernel_params(k::Kernel; kwargs...)
-    return (k, kwargs)
+    return (k, (;kwargs...))
 end
 
 function get_kernel_params(k::ScaledKernel; kwargs...)
-    return (k.kernel, merge(kwargs, (σ=first(k.σ²))))
+    # return get_kernel_params(k.kernel; merge((;kwargs...), (σ=first(k.σ²),)))
+    return get_kernel_params(k.kernel; kwargs..., σ=first(k.σ²))
 end
 
 function get_kernel_params(k::TransformedKernel; kwargs...)
     check_transform(k.transform)
-    return (k.kernel, merge(kwargs, (l=param(k.transform))))
+    return get_kernel_params(k.kernel; kwargs..., l=param(k.transform))
 end
 
 function check_transform(transform)
     transform isa Union{ScaleTransform,ARDTransform,LinearTransform} ||
-        throw(ArgumentError("No lengthscale could be extracted from kernel $k,\n
+        throw(ArgumentError("No lengthscale could be extracted from kernel,\n
         only ScaleTransform, ARDTransform and LinearTransform are allowed"))
     return nothing
 end
 
 function kernel(b::AbstractBQ)
-    return b.σ * (b.kernel ∘ ScaleTransform(inv.(b.l)))
+    if b.l isa AbstractMatrix
+        b.σ * (b.kernel ∘ LinearTransform(inv(b.l)))
+    else
+        return b.σ * (b.kernel ∘ ScaleTransform(inv.(b.l)))
+    end
 end
 
-function kernel(b::AbstractBQ)
-    return b.σ * (b.kernel ∘ LinearTransform(inv(b.l)))
-end
+Λ(l::Real) = abs2(l) * I
+Λ(l::AbstractVector) = Diagonal(abs2.(l))
+Λ(l::LowerTriangular) = l * l'

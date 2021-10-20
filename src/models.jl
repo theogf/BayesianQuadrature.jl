@@ -1,9 +1,11 @@
+#= 
+    General helping functions
+=#
+logprior(m::AbstractBQModel) = Base.Fix1(logpdf, p_0(m))
+prior(m::AbstractBQModel) = exp ∘ logprior(m)
 
-prior(m::AbstractBQModel) = m.prior
-logintegrand(m::AbstractBQModel) = m.logintegrand
-integrand(m::AbstractBQModel) = x -> exp(logintegrand(m)(x))
-logprior(m::AbstractBQModel) = x -> logpdf(prior(m), x)
-logjoint(m::AbstractBQModel) = x -> logprior(m)(x) + logintegrand(m)(x)
+integrand(m::AbstractBQModel) = exp ∘ logintegrand(m)
+logjoint(m::AbstractBQModel) = x->logprior(m)(x) + logintegrand(m)(x)
 
 """
     BayesModel(prior, logintegrand) <: AbstractBQModel
@@ -18,19 +20,11 @@ struct BayesModel{Tp,Ti} <: AbstractBQModel{Tp,Ti}
     logintegrand::Ti
 end
 
-_prior(m::AbstractBayesQuadModel) = m.prior
-priord(m::AbstractBayesQuadModel{<:MvNormal}) = _prior(m)
-priord(m::AbstractBayesQuadModel) = MvNormal(ones(length(_prior(m))))
-prior(m::AbstractBayesQuadModel) = exp ∘ logprior(m)
-logprior(m::AbstractBayesQuadModel) = x->logpdf(priord(m), x)
-
-_logintegrand(m::AbstractBayesQuadModel) = m.logintegrand
-logintegrand(m::AbstractBayesQuadModel{<:MvNormal}) = _logintegrand(m)
-function logintegrand(m::AbstractBayesQuadModel)
+p_0(m::BayesModel{<:AbstractMvNormal}) = m.prior
+p_0(m::BayesModel) = MvNormal(ones(dim(m.prior)))
+logintegrand(m::BayesModel{<:AbstractMvNormal}) = m.logintegrand
+function logintegrand(m::AbstractBQModel)
     return function reweightedlogintegrand(x)
-        _logintegrand(m)(x) + logpdf(_prior(m), x) - logprior(m)(x)
+        m.logintegrand(x) + logpdf(m.prior, x) - logprior(m)(x)
     end
 end
-integrand(m::AbstractBayesQuadModel) = exp ∘ logintegrand(m)
-
-logjoint(m::AbstractBayesQuadModel) = x->logprior(m)(x) + logintegrand(m)(x)

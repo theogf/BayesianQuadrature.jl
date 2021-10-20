@@ -12,7 +12,7 @@ of the integrand.
 ## Reference 
 - **Active Learning of Model Evidence Using Bayesian Quadrature** - Osborne et al. - NIPS 2012.
 """
-struct LogBayesQuad{TK,Tl,Tσ} <: AbstractBQ
+struct LogBayesQuad{TK,Tl,Tσ} <: AbstractBQ{TK}
     kernel::TK
     n_candidates::Int
     l::Tl
@@ -25,9 +25,11 @@ function LogBayesQuad(k::Kernel; n_candidates=100, l=1.0, σ::Real=1.0)
     return LogBayesQuad(k, n_candidates, l, σ)
 end
 
+scale(bquad::LogBayesQuad) = bquad.σ
+
 function quadrature(
     bquad::LogBayesQuad{<:SqExponentialKernel},
-    model::AbstractBayesQuadModel{<:MvNormal},
+    model::AbstractBQModel{<:MvNormal},
     samples,
 )
     isempty(samples) && error("The collection of samples is empty")
@@ -47,16 +49,16 @@ function quadrature(
     logf_c_0 = mean.(predict(gp, logf, x_c)) # Predict log-integrand on x_c
     Δ_c = exp.(logf_c_0) - f_c_0 # Compute difference of predictions
     
-    z = calc_z(samples, priord(model), bquad) # Compute mean for the basic BQ
+    z = calc_z(samples, p_0(model), bquad) # Compute mean for the basic BQ
     K = kernelpdmat(kernel(bquad), samples) # and the kernel matrix
     
-    z_c = calc_z(x_c, priord(model), bquad) # Compute mean for the ΔlogBQ
+    z_c = calc_z(x_c, p_0(model), bquad) # Compute mean for the ΔlogBQ
     K_c = kernelpdmat(kernel(bquad), x_c) # and the kernel matrix for the candidates
 
     m_evidence = evaluate_mean(z, K, f) # Compute m(Z|samples)
     m_correction = evaluate_mean(z_c, K_c, Δ_c) # 
 
-    C = calc_C(priord(model), bquad) # Compute the C component for the variance
+    C = calc_C(p_0(model), bquad) # Compute the C component for the variance
 
     var_evidence = evaluate_var(z, K, C)
     var_correction = evaluate_var(z_c, K_c, C)
@@ -97,7 +99,7 @@ function sample_candidates(bquad::LogBayesQuad, samples, n_c)
     n_dim = length(first(samples))
     T = eltype(first(samples))
     directions = [project_on_ellipse(rand(T, n_dim) .- 0.5) for _ in 1:n_c] # Sample withing the hyper ellipse
-    directions = lengthscale(bquad) .* directions # Scale the hyperellipse
+    directions = scale_directions(bquad.l, directions) # Scale the hyperellipse
     p_indices = rand(1:n_samples, n_c) # Get n_c indices from the samples
     return directions .+= samples[p_indices] # Create candidates around the existing samples
 end
@@ -105,3 +107,9 @@ end
 function project_on_ellipse(x)
     return x / norm(x, 1)
 end
+
+scale_directions(l::Real, directions) = l .* directions
+scale_directions(l::AbstractVector, directions) = hadamard(Ref(l), directions)
+scale_directions(l::AbstractMatrix, directions) = Ref(l) .* directions
+
+hadamard(x, y) = x .* y
