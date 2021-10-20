@@ -21,8 +21,22 @@ const BQ = BayesianQuadrature
 General class of models to perform quadrature.
 It needs to implement `quadrature(::AbstractBQ, model::AbstractBQModel, samples)`
 """
+
 abstract type AbstractBQ end
+"""
+    AbstractBQSampler
+
+General class for sampling.
+Should implement the `AbstracMCMC` API
+"""
 abstract type AbstractBQSampler <: AbstractMCMC.AbstractSampler end
+
+"""
+    AbstractBQModel
+
+General model class.
+Should implement `prior(m)` and `logintegrand(m)`
+"""
 abstract type AbstractBQModel{Tp,Ti} <: AbstractMCMC.AbstractModel end
 
 include("bayesquads/abstractbq.jl")

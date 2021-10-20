@@ -35,31 +35,33 @@ function quadrature(
     logf = logintegrand(model).(samples) # Evaluate integrand on samples
     normalize = false
     if normalize
-        max_logf = maximum(logf) # Find maximum
+        max_logf = maximum(logf) # Find maximum of all given samples
         logf .-= max_logf # Normalize log integrand
     end
-    f = exp.(logf) # Compute integrand
+    f = exp.(logf) # Compute integrand on samples
 
-    x_c = sample_candidates(bquad, samples) # Sample candidates around the samples
+    x_c = sample_candidates(bquad, samples, bquad.n_candidates) # Sample candidates around the samples
 
     gp = create_gp(bquad, samples)
     f_c_0 = mean.(predict(gp, f, x_c)) # Predict integrand on x_c
     logf_c_0 = mean.(predict(gp, logf, x_c)) # Predict log-integrand on x_c
     Δ_c = exp.(logf_c_0) - f_c_0 # Compute difference of predictions
     
-    C = calc_C(priord(model), bquad)
-
-    z = calc_z(samples, priord(model), bquad)
-    K = kernelpdmat(kernel(bquad), samples)
+    z = calc_z(samples, priord(model), bquad) # Compute mean for the basic BQ
+    K = kernelpdmat(kernel(bquad), samples) # and the kernel matrix
     
-    z_c = calc_z(x_c, priord(model), bquad)
-    K_c = kernelpdmat(kernel(bquad), x_c)
+    z_c = calc_z(x_c, priord(model), bquad) # Compute mean for the ΔlogBQ
+    K_c = kernelpdmat(kernel(bquad), x_c) # and the kernel matrix for the candidates
 
-    m_evidence = evaluate_mean(z, K, f)
-    m_correction = evaluate_mean(z_c, K_c, Δ_c)
+    m_evidence = evaluate_mean(z, K, f) # Compute m(Z|samples)
+    m_correction = evaluate_mean(z_c, K_c, Δ_c) # 
+
+    C = calc_C(priord(model), bquad) # Compute the C component for the variance
 
     var_evidence = evaluate_var(z, K, C)
     var_correction = evaluate_var(z_c, K_c, C)
+
+
     if normalize
         m = exp(log(m_evidence + m_correction) + max_logf)
         v = exp(log(var_evidence + var_correction) + 2 * max_logf)
@@ -71,18 +73,18 @@ function quadrature(
 end
 
 function predict(gp::AbstractGPs.FiniteGP, f, x_c)
-    f_post = posterior(gp, f)
-    return f_c = mean(f_post(x_c)) 
+    f_post = posterior(gp, f) # Create a posterior given the observations f
+    return mean(f_post(x_c)) # Return the predictive mean on the candidates
 end
 
 function create_gp(bquad::LogBayesQuad, samples)
-    gp = GP(kernel(bquad))
-    fx = gp(samples)    
+    gp = GP(kernel(bquad)) # Create a GP prior
+    return gp(samples) # Project it on the samples
 end
 
 
 """
-    sample_candidates(bquad::LogBayesQuad, samples)
+    sample_candidates(bquad::LogBayesQuad, samples, n_c)
 
 Sample new candidates around the existing `samples` within an hyper-ellipse, i.e
 in the space where |x_i|^n + |y_i|^n = 1.
@@ -90,12 +92,16 @@ The number of candidates is given by `bquad.n_candidates`
 This is needed to estimate the correction term for using a log transformation.
 See Osborne et al. 2012 and [`LogBayesQuad`](@ref)
 """
-function sample_candidates(bquad::LogBayesQuad, samples)
-    n_c = bquad.n_candidates
+function sample_candidates(bquad::LogBayesQuad, samples, n_c)
     n_samples = length(samples)
     n_dim = length(first(samples))
-    directions = [rand(n_dim) .- 0.5 |> x -> x / norm(x, 1) for _ in 1:n_c]
-    directions = lengthscale(bquad) .* directions
-    p_indices = rand(1:n_samples, n_c)
-    return directions .+= samples[p_indices] 
+    T = eltype(first(samples))
+    directions = [project_on_ellipse(rand(T, n_dim) .- 0.5) for _ in 1:n_c] # Sample withing the hyper ellipse
+    directions = lengthscale(bquad) .* directions # Scale the hyperellipse
+    p_indices = rand(1:n_samples, n_c) # Get n_c indices from the samples
+    return directions .+= samples[p_indices] # Create candidates around the existing samples
+end
+
+function project_on_ellipse(x)
+    return x / norm(x, 1)
 end
