@@ -9,7 +9,7 @@ CurrentModule = BayesianQuadrature
 ## Models
 
 ```@docs
-BayesianModel
+BayesModel
 ```
 
 ## Samplers

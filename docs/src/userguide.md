@@ -15,5 +15,15 @@ One needs to pass `p_0::MvNormal` ``\equiv p_0`` and `loglike(theta) = logpdf(li
 
 ## The sampling process
 
+One need to select the different samples ``\{x_i,y_i\}``.
+Since these samples do not need to belong to a specific distribution, all methods are allowed.
+The options so far are:
+- [`PriorSampling`](@ref), the most standard approach, sampling directly from `p_0`
 
 ## The Bayesian quadrature algorithm
+
+This is the algorithm doing the heavy work. It describes the underlying Gaussian Process via 
+a kernel from [KernelFunctions.jl](https://github.com/JuliaGaussianProcesses/KernelFunctions.jl).
+When using a `SqExponentialKernel` with a `MvNormal` prior, the resulting distribution of the integral can be computed analytically.
+The options are:
+- [`BayesQuad`](@ref), this is the vanilla algorithm, which tries to compute the integral exactly.
