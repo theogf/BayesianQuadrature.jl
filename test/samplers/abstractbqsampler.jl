@@ -1,1 +1,1 @@
-@testset "samplers" begin end
+@testset "abstractbqsampler" begin end

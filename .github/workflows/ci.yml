@@ -47,10 +47,9 @@ jobs:
       - uses: julia-actions/julia-processcoverage@v1
       - name: Send coverage
         if: matrix.version == '1' && matrix.os == 'ubuntu-latest'
-        uses: coverallsapp/github-action@master
+        codecov/codecov-action@v2
         with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            path-to-lcov: ./lcov.info
+          files: ./lcov.info # optional
   docs:
     name: Documentation
     runs-on: ubuntu-latest
