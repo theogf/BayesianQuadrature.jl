@@ -5,7 +5,7 @@ logprior(m::AbstractBQModel) = Base.Fix1(logpdf, p_0(m))
 prior(m::AbstractBQModel) = exp ∘ logprior(m)
 
 integrand(m::AbstractBQModel) = exp ∘ logintegrand(m)
-logjoint(m::AbstractBQModel) = x->logprior(m)(x) + logintegrand(m)(x)
+logjoint(m::AbstractBQModel) = x -> logprior(m)(x) + logintegrand(m)(x)
 
 """
     BayesModel(prior, logintegrand) <: AbstractBQModel
@@ -25,6 +25,6 @@ p_0(m::BayesModel) = MvNormal(ones(dim(m.prior)))
 logintegrand(m::BayesModel{<:AbstractMvNormal}) = m.logintegrand
 function logintegrand(m::AbstractBQModel)
     return function reweightedlogintegrand(x)
-        m.logintegrand(x) + logpdf(m.prior, x) - logprior(m)(x)
+        return m.logintegrand(x) + logpdf(m.prior, x) - logprior(m)(x)
     end
 end

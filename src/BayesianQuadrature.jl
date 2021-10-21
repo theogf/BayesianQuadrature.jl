@@ -9,7 +9,8 @@ using PDMats
 using Random
 
 export BayesQuad, LogBayesQuad
-export PriorSampling, BayesModel
+export PriorSampling
+export BayesModel
 export prior, integrand, logintegrand, logprior, logjoint
 export BQ # Short version for calling BayesianQuadrature
 
@@ -21,8 +22,8 @@ const BQ = BayesianQuadrature
 General class of models to perform quadrature.
 It needs to implement `quadrature(::AbstractBQ, model::AbstractBQModel, samples)`
 """
-
 abstract type AbstractBQ{TK} end
+
 """
     AbstractBQSampler
 

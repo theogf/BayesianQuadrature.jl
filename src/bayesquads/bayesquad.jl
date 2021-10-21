@@ -28,12 +28,8 @@ function BayesQuad(k::Kernel; l=1.0, σ::Real=1.0)
     return BayesQuad(k, l, σ)
 end
 
-
-
 function quadrature(
-    bquad::BayesQuad{<:SqExponentialKernel},
-    model::AbstractBQModel{<:MvNormal},
-    samples,
+    bquad::BayesQuad{<:SqExponentialKernel}, model::AbstractBQModel{<:MvNormal}, samples
 )
     isempty(samples) && error("The collection of samples is empty")
     y = integrand(model).(samples)

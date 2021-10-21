@@ -11,17 +11,13 @@ function check_kernel_parameters(l, σ)
         )
     )
     l isa Union{AbstractVector,Real} && (
-        all(>=(0), l) || throw(
-            ArgumentError(
-                "At least one lengthscale value is negative"
-            )
-        )
+        all(>=(0), l) || throw(ArgumentError("At least one lengthscale value is negative"))
     )
     return nothing
 end
 
 function get_kernel_params(k::Kernel; kwargs...)
-    return (k, (;kwargs...))
+    return (k, (; kwargs...))
 end
 
 function get_kernel_params(k::ScaledKernel; kwargs...)

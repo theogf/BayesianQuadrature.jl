@@ -20,7 +20,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/theogf/BayesianQuadrature.jl",
-    devbranch="main",
-    push_preview=true
+    repo="github.com/theogf/BayesianQuadrature.jl", devbranch="main", push_preview=true
 )

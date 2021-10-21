@@ -28,9 +28,7 @@ end
 scale(bquad::LogBayesQuad) = bquad.σ
 
 function quadrature(
-    bquad::LogBayesQuad{<:SqExponentialKernel},
-    model::AbstractBQModel{<:MvNormal},
-    samples,
+    bquad::LogBayesQuad{<:SqExponentialKernel}, model::AbstractBQModel{<:MvNormal}, samples
 )
     isempty(samples) && error("The collection of samples is empty")
     nsamples = length(samples)
@@ -48,10 +46,10 @@ function quadrature(
     f_c_0 = mean.(predict(gp, f, x_c)) # Predict integrand on x_c
     logf_c_0 = mean.(predict(gp, logf, x_c)) # Predict log-integrand on x_c
     Δ_c = exp.(logf_c_0) - f_c_0 # Compute difference of predictions
-    
+
     z = calc_z(samples, p_0(model), bquad) # Compute mean for the basic BQ
     K = kernelpdmat(kernel(bquad), samples) # and the kernel matrix
-    
+
     z_c = calc_z(x_c, p_0(model), bquad) # Compute mean for the ΔlogBQ
     K_c = kernelpdmat(kernel(bquad), x_c) # and the kernel matrix for the candidates
 
@@ -62,7 +60,6 @@ function quadrature(
 
     var_evidence = evaluate_var(z, K, C)
     var_correction = evaluate_var(z_c, K_c, C)
-
 
     if normalize
         m = exp(log(m_evidence + m_correction) + max_logf)
@@ -83,7 +80,6 @@ function create_gp(bquad::LogBayesQuad, samples)
     gp = GP(kernel(bquad)) # Create a GP prior
     return gp(samples) # Project it on the samples
 end
-
 
 """
     sample_candidates(bquad::LogBayesQuad, samples, n_c)
