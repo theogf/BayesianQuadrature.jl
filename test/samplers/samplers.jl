@@ -1,2 +1,0 @@
-@testset "samplers" begin
-end

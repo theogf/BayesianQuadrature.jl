@@ -1,5 +1,6 @@
 module BayesianQuadrature
 
+using AbstractGPs
 using AbstractMCMC
 using Distributions
 using KernelFunctions
@@ -7,19 +8,41 @@ using LinearAlgebra
 using PDMats
 using Random
 
-export BayesQuad, PriorSampling, BayesModel
+export BayesQuad, LogBayesQuad
+export PriorSampling
+export BayesModel
 export prior, integrand, logintegrand, logprior, logjoint
 export BQ # Short version for calling BayesianQuadrature
 
 const BQ = BayesianQuadrature
 
-abstract type AbstractBQ end
+"""
+    AbstractBQ
+
+General class of models to perform quadrature.
+It needs to implement `quadrature(::AbstractBQ, model::AbstractBQModel, samples)`
+"""
+abstract type AbstractBQ{TK} end
+
+"""
+    AbstractBQSampler
+
+General class for sampling.
+Should implement the `AbstracMCMC` API
+"""
 abstract type AbstractBQSampler <: AbstractMCMC.AbstractSampler end
+
+"""
+    AbstractBQModel
+
+General model class.
+Should implement `p_0(m)` and `logintegrand(m)`
+"""
 abstract type AbstractBQModel{Tp,Ti} <: AbstractMCMC.AbstractModel end
 
-include(joinpath("bayesquads", "bayesquads.jl"))
-include(joinpath("samplers", "samplers.jl"))
-include(joinpath("kernelmeans", "kernels.jl"))
+include("bayesquads/abstractbq.jl")
+include("samplers/abstractbqsampler.jl")
+include("kernelmeans/kernels.jl")
 include("interface.jl")
 include("models.jl")
 include("utils.jl")

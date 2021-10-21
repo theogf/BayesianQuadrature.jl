@@ -1,60 +1,41 @@
 """
     BayesQuad(k::Kernel; l=1.0, σ::Real=1.0)
 
-Bayesian Quadrature object.
-You can pass any kernel and the lengthscale and variance will be extracted.
-`l` can be a `Real`, a `AbstractVector` or a `LowerTriangular`.
+Tool for estimating the bayesian quadrature for a given `BayesQuadModel` and a `Sampler`.
+
+`BayesQuad` estimate the probability distribution `p(I)` of I = ∫ f(x) p(x) dx
+## Argument
+- `k::Kernel` : kernel from `KernelFunctions.jl`, the kernel cannot be composite
+## Keywords argument
+- `l` : lengthscale of the kernel. It can be:
+    - `Real` : isotropic kernel
+    - `AbstractVector` : ARD kernel (one lengthscale per dimension)
+    - `LowerTriangular` : Linear transformation of the inputs
+- `σ` : variance of the kernel (`k(x,x') -> σ * k(x,x')`)
+
+Note: If `k` already has a variance and/or a transformation,
+these will be automatically extracted and replace the given keyword arguments
 """
-struct BayesQuad{TK,Tl,Tσ} <: AbstractBQ
+struct BayesQuad{TK,Tl,Tσ} <: AbstractBQ{TK}
     kernel::TK
     l::Tl
     σ::Tσ
 end
 
 function BayesQuad(k::Kernel; l=1.0, σ::Real=1.0)
-    σ > 0 || ArgumentError("σ should be positive")
-    l isa AbstractMatrix && (
-        l isa LowerTriangular || throw(
-            ArgumentError(
-                "For l an AbstractMatrix, only LowerTriangular matrices are accepted"
-            ),
-        )
-    )
+    k, (l, σ) = get_kernel_params(k; l, σ)
+    check_kernel_parameters(l, σ)
     return BayesQuad(k, l, σ)
 end
 
-function BayesQuad(k::TransformedKernel{TK,Tt}; l=nothing, σ=1.0) where {TK,Tt}
-    Tt <: Union{ScaleTransform,ARDTransform,LinearTransform} ||
-        error("No lengthscale could be extracted from kernel $k,\n
-        only ScaleTransform, ARDTransform and LinearTransform are allowed")
-    l = param(k.transform)
-
-    return BayesQuad(k.kernel; l=l, σ=σ)
-end
-
-function BayesQuad(k::ScaledKernel; l=1.0, σ=nothing)
-    σ = first(k.σ²)
-    return BayesQuad(k.kernel; l=l, σ=σ)
-end
-
-function kernel(b::BayesQuad)
-    return b.σ * (b.kernel ∘ ScaleTransform(inv.(b.l)))
-end
-
-function kernel(b::BayesQuad{<:Kernel,<:LowerTriangular})
-    return b.σ * (b.kernel ∘ LinearTransform(inv(b.l)))
-end
-
 function quadrature(
-    bquad::BayesQuad{<:SqExponentialKernel},
-    model::AbstractBQModel{<:MvNormal},
-    samples,
+    bquad::BayesQuad{<:SqExponentialKernel}, model::AbstractBQModel{<:MvNormal}, samples
 )
     isempty(samples) && error("The collection of samples is empty")
     y = integrand(model).(samples)
     K = kernelpdmat(kernel(bquad), samples)
-    z = calc_z(samples, prior(model), bquad)
-    C = calc_C(prior(model), bquad)
+    z = calc_z(samples, p_0(model), bquad)
+    C = calc_C(p_0(model), bquad)
     var = evaluate_var(z, K, C)
     if var < 0
         if var > -1e-5
@@ -65,10 +46,6 @@ function quadrature(
     end
     return Normal(evaluate_mean(z, K, y), max(var, zero(var)))
 end
-
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:Real}) = abs2(bquad.l) * I
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:AbstractVector}) = Diagonal(abs2.(bquad.l))
-Λ(bquad::BayesQuad{<:SqExponentialKernel,<:LowerTriangular}) = bquad.l * bquad.l'
 
 scale(bquad::BayesQuad) = bquad.σ
 
