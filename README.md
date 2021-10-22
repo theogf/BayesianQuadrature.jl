@@ -5,6 +5,8 @@
 [![Build Status](https://github.com/theogf/BayesianQuadrature.jl/workflows/CI/badge.svg)](https://github.com/theogf/BayesianQuadrature.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/theogf/BayesianQuadrature.jl/badge.svg?branch=main)](https://coveralls.io/github/theogf/BayesianQuadrature.jl?branch=main)
 [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+[![DOI](https://zenodo.org/badge/337084342.svg)](https://zenodo.org/badge/latestdoi/337084342)
+
 
 Package for implementing different methods of Bayesian quadrature.
 Bayesian quadrature consists in estimating the integral `I = ∫ f(x) p(x) dx` by using Gaussian Processes where `p(x)` is assumed to be Gaussian.
