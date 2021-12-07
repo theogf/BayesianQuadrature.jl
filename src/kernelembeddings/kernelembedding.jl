@@ -2,15 +2,15 @@ abstract type AbstractKernelEmbedding end
 
 measure(ke::AbstractKernelEmbedding) = ke.measure
 
-struct KernelEmbedding{K::Kernel,Tm,Tσ::Real,Tl} <: AbstractKernelEmbedding
-    kernel::K # Kernel function
+struct KernelEmbedding{Tk<:Kernel,Tm,Tσ<:Real,Tl} <: AbstractKernelEmbedding
+    kernel::Tk # Kernel function
     σ::Tσ # Kernel variance
     l::Tl # Kernel lengthscale
     measure::Tm # Measure
 end
 
-function KernelEmbedding(bquad::BayesQuad, prior)
-    return KernelEmbedding(kernel(bquad), bquad.σ, bquad.l, prior)
+function KernelEmbedding(bquad::AbstractBQ, prior)
+    return KernelEmbedding(bquad.kernel, bquad.σ, bquad.l, prior)
 end
 
 scale(ke::KernelEmbedding) = ke.σ
