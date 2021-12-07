@@ -41,22 +41,23 @@ function quadrature(
     f = exp.(logf) # Compute integrand on samples
 
     x_c = sample_candidates(bquad, samples, bquad.n_candidates) # Sample candidates around the samples
+    ke = KernelEmbedding(bquad, p_0(model))
 
     gp = create_gp(bquad, samples)
     f_c_0 = mean.(predict(gp, f, x_c)) # Predict integrand on x_c
     logf_c_0 = mean.(predict(gp, logf, x_c)) # Predict log-integrand on x_c
     Δ_c = exp.(logf_c_0) - f_c_0 # Compute difference of predictions
 
-    z = calc_z(samples, p_0(model), bquad) # Compute mean for the basic BQ
+    z = kernel_mean(ke, samples) # Compute mean for the basic BQ
     K = kernelpdmat(kernel(bquad), samples) # and the kernel matrix
 
-    z_c = calc_z(x_c, p_0(model), bquad) # Compute mean for the ΔlogBQ
+    z_c = kernel_mean(ke, x_c) # Compute mean for the ΔlogBQ
     K_c = kernelpdmat(kernel(bquad), x_c) # and the kernel matrix for the candidates
 
     m_evidence = evaluate_mean(z, K, f) # Compute m(Z|samples)
     m_correction = evaluate_mean(z_c, K_c, Δ_c) # 
 
-    C = calc_C(p_0(model), bquad) # Compute the C component for the variance
+    C = kernel_variance(ke) # Compute the kernel variance
 
     var_evidence = evaluate_var(z, K, C)
     var_correction = evaluate_var(z_c, K_c, C)

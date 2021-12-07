@@ -25,9 +25,8 @@ include("testing_tools.jl")
         include(joinpath("samplers", "priorsampling.jl"))
     end
 
-    @info "Testing kernel means"
-    @testset "Kernel Means" begin
-        include(joinpath("kernelmeans", "kernels.jl"))
-        include(joinpath("kernelmeans", "sekernel.jl"))
+    @info "Testing kernel embeddings"
+    @testset "Kernel Embeddings" begin
+        include(joinpath("kernelembeddings", "kernelembedding.jl"))
     end
 end

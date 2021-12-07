@@ -13,6 +13,8 @@ export PriorSampling
 export BayesModel
 export prior, integrand, logintegrand, logprior, logjoint
 export BQ # Short version for calling BayesianQuadrature
+export KernelEmbedding
+export kernel_mean, kernel_variance
 
 const BQ = BayesianQuadrature
 
@@ -42,7 +44,7 @@ abstract type AbstractBQModel{Tp,Ti} <: AbstractMCMC.AbstractModel end
 
 include("bayesquads/abstractbq.jl")
 include("samplers/abstractbqsampler.jl")
-include("kernelmeans/kernels.jl")
+include("kernelembeddings/kernelembedding.jl")
 include("interface.jl")
 include("models.jl")
 include("utils.jl")

@@ -34,8 +34,9 @@ function quadrature(
     isempty(samples) && error("The collection of samples is empty")
     y = integrand(model).(samples)
     K = kernelpdmat(kernel(bquad), samples)
-    z = calc_z(samples, p_0(model), bquad)
-    C = calc_C(p_0(model), bquad)
+    ke = KernelEmbedding(bquad, p_0(model))
+    z = kernel_mean(ke, samples)
+    C = kernel_variance(ke)
     var = evaluate_var(z, K, C)
     if var < 0
         if var > -1e-5
