@@ -27,7 +27,7 @@ end
 
 function get_kernel_params(k::TransformedKernel; kwargs...)
     check_transform(k.transform)
-    return get_kernel_params(k.kernel; kwargs..., l=param(k.transform))
+    return get_kernel_params(k.kernel; kwargs..., l=transform_param(k.transform))
 end
 
 function check_transform(transform)
@@ -44,7 +44,3 @@ function kernel(b::AbstractBQ)
         return b.σ * (b.kernel ∘ ScaleTransform(inv.(b.l)))
     end
 end
-
-Λ(l::Real) = abs2(l) * I
-Λ(l::AbstractVector) = Diagonal(abs2.(l))
-Λ(l::LowerTriangular) = l * l'
