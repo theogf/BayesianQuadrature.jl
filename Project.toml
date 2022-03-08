@@ -14,7 +14,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
 AbstractGPs = "0.5"
-AbstractMCMC = "3"
+AbstractMCMC = "3, 4"
 Distributions = "0.24, 0.25"
 KernelFunctions = "0.10"
 PDMats = "0.10, 0.11"
