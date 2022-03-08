@@ -1,7 +1,7 @@
 name = "BayesianQuadrature"
 uuid = "609f5bd8-aef1-42b2-b90e-083e3346dba9"
 authors = ["Theo Galy-Fajou <theo.galyfajou@gmail.com> and contributors"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 AbstractGPs = "99985d1d-32ba-4be9-9821-2ec096f28918"
