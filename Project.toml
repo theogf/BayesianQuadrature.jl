@@ -1,7 +1,7 @@
 name = "BayesianQuadrature"
 uuid = "609f5bd8-aef1-42b2-b90e-083e3346dba9"
 authors = ["Theo Galy-Fajou <theo.galyfajou@gmail.com> and contributors"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 AbstractGPs = "99985d1d-32ba-4be9-9821-2ec096f28918"
@@ -14,7 +14,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
 AbstractGPs = "0.5"
-AbstractMCMC = "3"
+AbstractMCMC = "3, 4"
 Distributions = "0.24, 0.25"
 KernelFunctions = "0.10"
 PDMats = "0.10, 0.11"
